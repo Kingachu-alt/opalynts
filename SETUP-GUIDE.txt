@@ -1,0 +1,136 @@
+# NovaCap — Firebase Setup Guide
+# Follow these steps IN ORDER. Takes about 10 minutes.
+
+=====================================================
+STEP 1 — Create a Free Firebase Project
+=====================================================
+
+1. Go to: https://console.firebase.google.com
+2. Click "Create a project"
+3. Name it: NovaCap (or anything you like)
+4. Disable Google Analytics (not needed) → click Continue
+5. Wait for project to be created → click "Continue"
+
+
+=====================================================
+STEP 2 — Enable Email/Password Login
+=====================================================
+
+1. In the left sidebar, click "Authentication"
+2. Click "Get started"
+3. Under "Sign-in method", click "Email/Password"
+4. Toggle "Enable" to ON
+5. Click Save
+
+
+=====================================================
+STEP 3 — Create the Database
+=====================================================
+
+1. In the left sidebar, click "Firestore Database"
+2. Click "Create database"
+3. Select "Start in TEST MODE" (important!)
+4. Choose any server location (e.g. europe-west or us-central)
+5. Click "Enable"
+
+
+=====================================================
+STEP 4 — Get Your Firebase Config Keys
+=====================================================
+
+1. Click the gear icon ⚙️ next to "Project Overview" → "Project settings"
+2. Scroll down to "Your apps"
+3. Click the </> (Web) icon to add a web app
+4. Give it a nickname: NovaCap Web
+5. Click "Register app"
+6. You will see a block of code like this:
+
+   const firebaseConfig = {
+     apiKey: "AIza...",
+     authDomain: "novacap-....firebaseapp.com",
+     projectId: "novacap-...",
+     storageBucket: "novacap-....appspot.com",
+     messagingSenderId: "123456...",
+     appId: "1:123456:web:abc..."
+   };
+
+7. Copy each value
+
+
+=====================================================
+STEP 5 — Paste Your Keys Into the Config File
+=====================================================
+
+1. Open the file: firebase-config.js  (in the novacap-firebase folder)
+2. Replace each placeholder with your real values:
+
+   PASTE_YOUR_apiKey_HERE          → your apiKey value
+   PASTE_YOUR_authDomain_HERE      → your authDomain value
+   PASTE_YOUR_projectId_HERE       → your projectId value
+   PASTE_YOUR_storageBucket_HERE   → your storageBucket value
+   PASTE_YOUR_messagingSenderId_HERE → your messagingSenderId value
+   PASTE_YOUR_appId_HERE           → your appId value
+
+3. Also change the admin password on the last line:
+   const ADMIN_PASSWORD = "novacap2026";
+   → Change "novacap2026" to something only you know
+
+
+=====================================================
+STEP 6 — Deploy to Netlify (Free Hosting)
+=====================================================
+
+1. Go to: https://netlify.com → Sign up free
+2. After logging in, you'll see a box that says:
+   "Drag and drop your site folder here"
+3. Drag the entire "novacap-firebase" folder into that box
+4. Netlify gives you a live URL instantly! (e.g. https://novacap-xyz.netlify.app)
+5. Share that URL with your clients
+
+
+=====================================================
+STEP 7 — Access Your Admin Panel
+=====================================================
+
+Your admin panel is at:
+[your-site-url]/pages/admin.html
+
+Password: whatever you set in firebase-config.js
+
+
+=====================================================
+WHAT YOUR CLIENTS SEE
+=====================================================
+- Sign up at: [your-site-url]/pages/signup.html
+- Log in at:  [your-site-url]/pages/login.html
+- Dashboard:  [your-site-url]/pages/dashboard.html
+
+
+=====================================================
+HOW TO UPDATE A CLIENT'S BALANCE (your main job)
+=====================================================
+
+1. Go to your admin panel
+2. See pending applications under "Pending Deposit Applications"
+3. Once a client sends you funds on Bybit:
+   - Click "Update Status" → set to "Active" (this auto-credits their balance)
+   - OR click "Edit Balance" to manually enter any amount
+4. The client's dashboard updates INSTANTLY in real time
+
+
+=====================================================
+TROUBLESHOOTING
+=====================================================
+
+Q: Page shows blank / nothing loads
+A: Check firebase-config.js — make sure all values are filled in correctly
+
+Q: "Permission denied" error
+A: Make sure you selected "Start in TEST MODE" in Step 3
+
+Q: Can't log in as client
+A: Make sure you enabled Email/Password in Step 2
+
+=====================================================
+Need help? Contact your web developer.
+=====================================================

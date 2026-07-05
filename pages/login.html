@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Log In — NovaCap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #0B0F1A; --slate: #1E2740; --gold: #C8A84B; --gold-light: #E8C96A; --white: #FFFFFF; --green: #1DB97A; --red: #E85454; }
+    body { font-family: 'Inter', sans-serif; background: var(--ink); color: var(--white); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .card { background: var(--slate); border: 1px solid rgba(200,168,75,0.15); border-radius: 20px; padding: 3rem; width: 100%; max-width: 440px; }
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; text-decoration: none; color: var(--white); display: block; margin-bottom: 2rem; }
+    .logo span { color: var(--gold); }
+    h1 { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .sub { color: rgba(255,255,255,0.4); font-size: 0.9rem; margin-bottom: 2rem; }
+    .sub a { color: var(--gold); text-decoration: none; }
+    .form-group { margin-bottom: 1.2rem; }
+    label { display: block; font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.6); margin-bottom: 0.4rem; }
+    input { width: 100%; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem 1rem; color: var(--white); font-size: 0.95rem; font-family: 'Inter', sans-serif; transition: border-color 0.2s; outline: none; }
+    input::placeholder { color: rgba(255,255,255,0.25); }
+    input:focus { border-color: var(--gold); }
+    .btn-submit { width: 100%; background: var(--gold); color: var(--ink); border: none; border-radius: 8px; padding: 0.9rem; font-size: 1rem; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; margin-top: 0.5rem; }
+    .btn-submit:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .error-msg { display: none; background: rgba(232,84,84,0.1); border: 1px solid rgba(232,84,84,0.3); border-radius: 8px; padding: 0.8rem 1rem; color: var(--red); font-size: 0.85rem; margin-bottom: 1rem; }
+    .admin-hint { text-align: center; margin-top: 1.5rem; font-size: 0.8rem; color: rgba(255,255,255,0.2); }
+    .admin-hint a { color: rgba(200,168,75,0.4); text-decoration: none; }
+    .admin-hint a:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a href="../index.html" class="logo">Nova<span>Cap</span></a>
+    <h1>Welcome back</h1>
+    <p class="sub">Don't have an account? <a href="signup.html">Sign up →</a></p>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="form-group"><label>Email Address</label><input type="email" id="email" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Password</label><input type="password" id="password" placeholder="Your password"/></div>
+    <button class="btn-submit" id="loginBtn" onclick="handleLogin()">Log In →</button>
+    <p class="admin-hint">Admin? <a href="admin.html">Go to admin panel →</a></p>
+  </div>
+
+  <script src="../firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const auth = getAuth(app);
+
+    window.handleLogin = async function() {
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const errorMsg = document.getElementById('errorMsg');
+      const btn      = document.getElementById('loginBtn');
+
+      errorMsg.style.display = 'none';
+      if (!email || !password) {
+        errorMsg.textContent = 'Please enter your email and password.';
+        errorMsg.style.display = 'block'; return;
+      }
+
+      btn.disabled = true; btn.textContent = 'Logging in...';
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        btn.disabled = false; btn.textContent = 'Log In →';
+        const msgs = {
+          'auth/user-not-found': 'No account found with this email.',
+          'auth/wrong-password': 'Incorrect password. Please try again.',
+          'auth/invalid-credential': 'Incorrect email or password.',
+          'auth/too-many-requests': 'Too many attempts. Please wait a moment.'
+        };
+        errorMsg.textContent = msgs[err.code] || 'Login failed. Please try again.';
+        errorMsg.style.display = 'block';
+      }
+    };
+
+    document.addEventListener('keypress', e => { if (e.key === 'Enter') handleLogin(); });
+  </script>
+</body>
+</html>
