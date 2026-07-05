@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Panel — NovaCap</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #0B0F1A; --slate: #1E2740; --gold: #C8A84B; --gold-light: #E8C96A; --white: #FFFFFF; --green: #1DB97A; --red: #E85454; }
+    body { font-family: 'Inter', sans-serif; background: var(--ink); color: var(--white); min-height: 100vh; }
+
+    .admin-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .login-card { background: var(--slate); border: 1px solid rgba(200,168,75,0.2); border-radius: 20px; padding: 3rem; width: 100%; max-width: 380px; text-align: center; }
+    .lock-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+    .login-card h2 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:700; margin-bottom:0.3rem; }
+    .login-card p { font-size:0.85rem; color:rgba(255,255,255,0.4); margin-bottom:1.8rem; }
+    input, select { width: 100%; background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.75rem 1rem; color: var(--white); font-size: 0.95rem; font-family: 'Inter', sans-serif; outline: none; margin-bottom: 1rem; transition: border-color 0.2s; }
+    input:focus, select:focus { border-color: var(--gold); }
+    select option { background: var(--slate); }
+    .btn { background: var(--gold); color: var(--ink); border: none; border-radius: 8px; padding: 0.75rem 2rem; font-size: 0.95rem; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; width: 100%; }
+    .btn:hover { background: var(--gold-light); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.8rem; width: auto; border-radius: 6px; }
+    .btn-green { background: var(--green); color: var(--white); }
+    .btn-green:hover { background: #24d68e; }
+    .btn-outline-s { background: transparent; border: 1.5px solid rgba(200,168,75,0.4); color: var(--gold); border-radius: 6px; padding: 0.4rem 0.9rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.15s; }
+    .btn-outline-s:hover { border-color: var(--gold); background: rgba(200,168,75,0.1); }
+    .err { color: var(--red); font-size: 0.82rem; margin-bottom: 0.8rem; display: none; }
+
+    .admin-panel { display: none; }
+    .topbar { background: var(--slate); border-bottom: 1px solid rgba(255,255,255,0.07); padding: 1rem 2.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:1.3rem; text-decoration:none; color:var(--white); }
+    .logo span { color:var(--gold); }
+    .admin-badge { background: rgba(232,84,84,0.15); border: 1px solid rgba(232,84,84,0.3); color: var(--red); padding: 0.3rem 0.8rem; border-radius: 100px; font-size: 0.75rem; font-weight: 600; }
+
+    .content { padding: 2.5rem; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.2rem; margin-bottom: 2.5rem; }
+    .stat-card { background: var(--slate); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 1.3rem; }
+    .stat-lbl { font-size: 0.75rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+    .stat-val { font-family:'Syne',sans-serif; font-size: 1.8rem; font-weight:700; }
+    .stat-val.gold { color: var(--gold); }
+    .stat-val.green { color: var(--green); }
+
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .section-title { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; }
+    .table-card { background: var(--slate); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; margin-bottom: 2rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 0.9rem 1.2rem; font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.07); white-space: nowrap; }
+    td { padding: 0.85rem 1.2rem; font-size: 0.86rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge { display:inline-block; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; }
+    .badge-pending { background:rgba(200,168,75,0.15); color:var(--gold); }
+    .badge-active { background:rgba(29,185,122,0.15); color:var(--green); }
+    .badge-completed { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); }
+    .badge-rejected { background:rgba(232,84,84,0.15); color:var(--red); }
+    .action-group { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .empty-state { text-align:center; padding:2.5rem; color:rgba(255,255,255,0.3); font-size:0.88rem; }
+
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--slate); border: 1px solid rgba(200,168,75,0.2); border-radius: 16px; padding: 2rem; width: 100%; max-width: 420px; }
+    .modal h3 { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; margin-bottom:0.5rem; }
+    .modal p { font-size:0.85rem; color:rgba(255,255,255,0.45); margin-bottom:1.5rem; line-height:1.6; }
+    .modal label { display:block; font-size:0.8rem; color:rgba(255,255,255,0.5); margin-bottom:0.4rem; }
+    .modal input, .modal select { margin-bottom: 1rem; }
+    .modal-actions { display:flex; gap:0.8rem; }
+    .btn-cancel { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.6); border:none; border-radius:8px; padding:0.7rem 1.5rem; font-size:0.9rem; font-family:'Inter',sans-serif; cursor:pointer; flex-shrink:0; }
+    .btn-cancel:hover { background:rgba(255,255,255,0.12); }
+
+    @media (max-width:700px) { .content { padding:1.5rem; } th, td { padding:0.7rem 0.8rem; } }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN GATE -->
+  <div class="admin-login" id="loginGate">
+    <div class="login-card">
+      <div class="lock-icon">🔐</div>
+      <h2>Admin Access</h2>
+      <p>Restricted to NovaCap administrators only.</p>
+      <input type="password" id="adminPass" placeholder="Admin password" onkeypress="if(event.key==='Enter')adminLogin()"/>
+      <p class="err" id="loginErr">Incorrect password.</p>
+      <button class="btn" onclick="adminLogin()">Enter Admin Panel</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="topbar">
+      <a href="../index.html" class="logo">Nova<span>Cap</span></a>
+      <span class="admin-badge">ADMIN PANEL</span>
+      <button onclick="adminLogout()" style="background:transparent;border:none;color:rgba(255,255,255,0.4);font-family:'Inter',sans-serif;cursor:pointer;font-size:0.85rem;">Exit</button>
+    </div>
+    <div class="content">
+      <div class="stats-row" id="adminStats">
+        <div class="stat-card"><div class="stat-lbl">Total Clients</div><div class="stat-val" id="statClients">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total Balances</div><div class="stat-val gold" id="statBalance">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">Total Deposited</div><div class="stat-val green" id="statDeposited">—</div></div>
+        <div class="stat-card"><div class="stat-lbl">Pending Applications</div><div class="stat-val" id="statPending" style="color:var(--gold)">—</div></div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">⏳ Pending Deposit Applications</div>
+      </div>
+      <div class="table-card" id="pendingTable"><div class="empty-state">Loading...</div></div>
+
+      <div class="section-header" style="margin-top:2rem;">
+        <div class="section-title">👥 All Clients</div>
+      </div>
+      <div class="table-card" id="clientsTable"><div class="empty-state">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- BALANCE MODAL -->
+  <div class="modal-overlay" id="balanceModal">
+    <div class="modal">
+      <h3>Update Client Balance</h3>
+      <p id="modalClientName">—</p>
+      <label>Action</label>
+      <select id="balAction">
+        <option value="set">Set balance to exact amount</option>
+        <option value="add">Add to current balance</option>
+        <option value="subtract">Subtract from balance</option>
+      </select>
+      <label>Amount (USD)</label>
+      <input type="number" id="balAmount" placeholder="e.g. 2500"/>
+      <label>Also add to "Total Returns"? (for credited earnings)</label>
+      <select id="balAddReturns">
+        <option value="no">No — just update balance</option>
+        <option value="yes">Yes — add same amount to Total Returns</option>
+      </select>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('balanceModal')">Cancel</button>
+        <button class="btn" style="flex:1;" onclick="applyBalanceUpdate()">Update Balance</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEPOSIT STATUS MODAL -->
+  <div class="modal-overlay" id="statusModal">
+    <div class="modal">
+      <h3>Update Deposit Status</h3>
+      <p id="statusModalDesc">—</p>
+      <label>New Status</label>
+      <select id="newStatus">
+        <option value="Pending">Pending</option>
+        <option value="Active">Active</option>
+        <option value="Completed">Completed</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+      <p style="font-size:0.8rem;color:rgba(255,255,255,0.35);margin-top:-0.5rem;margin-bottom:1rem;">Setting to "Active" will automatically credit the deposit amount to the client's balance.</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal('statusModal')">Cancel</button>
+        <button class="btn" style="flex:1;" onclick="applyStatusUpdate()">Update Status</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../firebase-config.js"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const db = getFirestore(app);
+
+    let allUsers = [];
+    let allDeposits = [];
+    let activeUserId = null;
+    let activeDepId = null;
+    let activeDepAmount = 0;
+    let activeDepUid = null;
+
+    // ---- AUTH ----
+    window.adminLogin = function() {
+      const pass = document.getElementById('adminPass').value;
+      if (pass === ADMIN_PASSWORD) {
+        document.getElementById('loginGate').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        startListeners();
+      } else {
+        document.getElementById('loginErr').style.display = 'block';
+      }
+    };
+
+    window.adminLogout = function() {
+      document.getElementById('loginGate').style.display = 'flex';
+      document.getElementById('adminPanel').style.display = 'none';
+      document.getElementById('adminPass').value = '';
+    };
+
+    // ---- REAL-TIME LISTENERS ----
+    function startListeners() {
+      // Users
+      onSnapshot(collection(db, 'users'), (snap) => {
+        allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderStats();
+        renderClients();
+      });
+
+      // Deposits
+      onSnapshot(collection(db, 'deposits'), (snap) => {
+        allDeposits = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        renderStats();
+        renderPending();
+      });
+    }
+
+    function fmt(n) { return (n||0).toLocaleString('en-US', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+
+    function renderStats() {
+      document.getElementById('statClients').textContent = allUsers.length;
+      document.getElementById('statBalance').textContent = '$' + fmt(allUsers.reduce((s,u) => s + (u.balance||0), 0));
+      document.getElementById('statDeposited').textContent = '$' + fmt(allUsers.reduce((s,u) => s + (u.totalDeposited||0), 0));
+      document.getElementById('statPending').textContent = allDeposits.filter(d => d.status === 'Pending').length;
+    }
+
+    function renderPending() {
+      const pending = allDeposits.filter(d => d.status === 'Pending');
+      const el = document.getElementById('pendingTable');
+      if (pending.length === 0) { el.innerHTML = '<div class="empty-state">No pending applications 🎉</div>'; return; }
+      el.innerHTML = `<table>
+        <thead><tr><th>Date</th><th>Client</th><th>Plan</th><th>Amount</th><th>Crypto</th><th>Notes</th><th>Actions</th></tr></thead>
+        <tbody>${pending.map(d => `<tr>
+          <td>${d.date||'—'}</td>
+          <td><div style="font-weight:600;">${d.clientName||'—'}</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.35);">${d.clientEmail||''}</div></td>
+          <td>${d.plan}</td>
+          <td>$${fmt(parseFloat(d.amount))}</td>
+          <td>${d.crypto}</td>
+          <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:rgba(255,255,255,0.4);">${d.notes||'—'}</td>
+          <td><div class="action-group">
+            <button class="btn btn-sm btn-green" onclick="openStatusModal('${d.id}','${d.uid}','${d.clientName}','${d.plan}',${d.amount})">Update Status</button>
+            <button class="btn-outline-s" onclick="openBalModal('${d.uid}','${d.clientName}')">Edit Balance</button>
+          </div></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+
+    function renderClients() {
+      const el = document.getElementById('clientsTable');
+      if (allUsers.length === 0) { el.innerHTML = '<div class="empty-state">No clients yet.</div>'; return; }
+      el.innerHTML = `<table>
+        <thead><tr><th>Client</th><th>Country</th><th>Balance</th><th>Deposited</th><th>Returns</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody>${allUsers.map(u => `<tr>
+          <td><div style="font-weight:600;">${u.firstName} ${u.lastName}</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.35);">${u.email}</div></td>
+          <td>${u.country||'—'}</td>
+          <td style="color:var(--gold);font-weight:600;">$${fmt(u.balance)}</td>
+          <td>$${fmt(u.totalDeposited)}</td>
+          <td style="color:var(--green);">$${fmt(u.totalReturns)}</td>
+          <td>${u.joinDate||'—'}</td>
+          <td><button class="btn-outline-s" onclick="openBalModal('${u.id}','${u.firstName} ${u.lastName}')">Edit Balance</button></td>
+        </tr>`).join('')}</tbody>
+      </table>`;
+    }
+
+    // ---- MODALS ----
+    window.openBalModal = function(uid, name) {
+      activeUserId = uid;
+      document.getElementById('modalClientName').textContent = 'Client: ' + name;
+      document.getElementById('balAmount').value = '';
+      document.getElementById('balanceModal').classList.add('open');
+    };
+
+    window.openStatusModal = function(depId, uid, name, plan, amount) {
+      activeDepId = depId;
+      activeDepUid = uid;
+      activeDepAmount = amount;
+      document.getElementById('statusModalDesc').textContent = `${name} — ${plan} — $${parseFloat(amount).toLocaleString()}`;
+      document.getElementById('statusModal').classList.add('open');
+    };
+
+    window.closeModal = function(id) { document.getElementById(id).classList.remove('open'); };
+
+    window.applyBalanceUpdate = async function() {
+      const action = document.getElementById('balAction').value;
+      const amount = parseFloat(document.getElementById('balAmount').value);
+      const addReturns = document.getElementById('balAddReturns').value === 'yes';
+      if (!amount || isNaN(amount)) { alert('Please enter a valid amount.'); return; }
+
+      const userRef = doc(db, 'users', activeUserId);
+      const user = allUsers.find(u => u.id === activeUserId);
+      if (!user) { alert('User not found.'); return; }
+
+      let updates = {};
+      if (action === 'set') {
+        updates.balance = amount;
+      } else if (action === 'add') {
+        updates.balance = increment(amount);
+        updates.totalDeposited = increment(amount);
+      } else if (action === 'subtract') {
+        const newBal = Math.max(0, (user.balance || 0) - amount);
+        updates.balance = newBal;
+      }
+
+      if (addReturns && action !== 'subtract') {
+        updates.totalReturns = increment(amount);
+      }
+
+      await updateDoc(userRef, updates);
+      closeModal('balanceModal');
+      alert(`✅ Balance updated for ${user.firstName} ${user.lastName}`);
+    };
+
+    window.applyStatusUpdate = async function() {
+      const newStatus = document.getElementById('newStatus').value;
+      const depRef = doc(db, 'deposits', activeDepId);
+      const updates = { status: newStatus };
+
+      // Auto-credit balance when activating
+      if (newStatus === 'Active') {
+        const userRef = doc(db, 'users', activeDepUid);
+        await updateDoc(userRef, {
+          balance: increment(activeDepAmount),
+          totalDeposited: increment(activeDepAmount)
+        });
+      }
+
+      await updateDoc(depRef, updates);
+      closeModal('statusModal');
+      alert(`✅ Deposit status updated to "${newStatus}"`);
+    };
+
+    // Close modals on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+    });
+  </script>
+</body>
+</html>
